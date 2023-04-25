@@ -6,14 +6,11 @@ from langchain.chains import ConversationChain
 from langchain.llms import OpenAI
 from chains.chat_chain import *
 
-import config_logins as cl
-
 import os
 import openai
 
 openai.api_base = "https://openai.woolly.ai/v1"
 
-os.environ["OPENAI_API_KEY"] = cl.API_KEY
 
 if "model" not in st.session_state:
     st.session_state["model"] = assistant_chain()

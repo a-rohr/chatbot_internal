@@ -1,5 +1,8 @@
 from langchain import OpenAI, ConversationChain, LLMChain, PromptTemplate
-from langchain.memory import ConversationBufferWindowMemory
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import SystemMessagePromptTemplate, ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
+
+from langchain.memory import ConversationBufferWindowMemory, ConversationSummaryBufferMemory, ConversationBufferMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 
 def assistant_chain():
@@ -11,23 +14,23 @@ def assistant_chain():
     Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
 
     Overall, Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
+"""
 
-    {history}
-    You: {input}
-    Assistant:"""
+    prompt = ChatPromptTemplate.from_messages([
+        SystemMessagePromptTemplate.from_template(template),
+        MessagesPlaceholder(variable_name="history"),
+        HumanMessagePromptTemplate.from_template("{input}")
+    ])
 
-    prompt = PromptTemplate(
-        input_variables=["history", "input"], 
-        template=template
-    )
+    llm = ChatOpenAI(temperature=0.4, model_name='gpt-3.5-turbo')
 
-
-    chatgpt_chain = LLMChain(
-        llm=OpenAI(temperature=0.4, model_name='gpt-3.5-turbo'), 
+    chatgpt_chain = ConversationChain(
+        llm=llm, 
         prompt=prompt, 
         verbose=True, 
-        memory=ConversationBufferWindowMemory(k=2),
+        memory=ConversationBufferMemory(return_messages=True)
     )
+
     return chatgpt_chain
 
 def default_chain():
